@@ -32,7 +32,7 @@ def prepare_data(
     """
     # Set Log Prepend Msg
     prepend_log_msg = FILE_PATH + ".prepare_data "
-
+    # import pdb; pdb.set_trace()
     if prediction:
         labels = load_sync(params["label3d_file"])
         nFrames = np.max(labels[0]["data_frame"].shape)

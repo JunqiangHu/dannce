@@ -132,6 +132,8 @@ def dannce_predict_cli():
     parser.set_defaults(**{**_param_defaults_shared, **_param_defaults_dannce})
     args = parse_clargs(parser, model_type="dannce", prediction=True)
     params = build_clarg_params(args, dannce_net=True, prediction=True)
+    # import pdb
+    # pdb.set_trace()
     dannce_predict(params)
 
 

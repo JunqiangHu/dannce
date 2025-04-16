@@ -4,6 +4,7 @@
 import numpy as np
 import os
 import time
+from scipy import ndimage
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras.models import Model
@@ -325,9 +326,12 @@ def extract_single_instance(
     No Longer Returned:
         (Dict): Updated saved data dictionary.
     """
-    pred_max = np.max(np.squeeze(pred[n_cam]))
+    pred_squeeze = ndimage.median_filter(np.squeeze(pred[n_cam]), size=10)
+    # modified by HJQ, 20250415
+
+    pred_max = np.max(pred_squeeze)
     ind = (
-        np.array(processing.get_peak_inds(np.squeeze(pred[n_cam]))) * params["downfac"]
+        np.array(processing.get_peak_inds(pred_squeeze)) * params["downfac"]
     )
     ind[0] += params["crop_height"][0]
     ind[1] += params["crop_width"][0]
@@ -583,6 +587,7 @@ def infer_com(
         end_time = print_checkpoint(
             n_frame, start_ind, end_time, sample_save=sample_save
         )
+        # import pdb; pdb.set_trace()
         pred_batch = predict_batch(model, generator, n_frame, params)
         n_batches = pred_batch.shape[0]
 
@@ -603,7 +608,7 @@ def infer_com(
                 pred = pred_batch[n_batch, ...]
             else:
                 pred = pred_batch[n_batch, :, :, :, -1]
-            sample_id = partition["valid_sampleIDs"][n_frame * n_batches + n_batch]
+            sample_id = partition["valid_sampleIDs"][n_frame * n_batches + n_batch] # triggers sampleID not align with start_sample, it's actual sample ID in ms level 
             save_data[sample_id] = {}
             save_data[sample_id]["triangulation"] = {}
             n_cams = pred.shape[0]
@@ -669,6 +674,7 @@ def infer_dannce(
     save_data = {}
     start_ind = params["start_batch"]
     end_ind = params["maxbatch"]
+    # import pdb; pdb.set_trace()
     for idx, i in enumerate(range(start_ind, end_ind)):
         logging.debug("Predicting on batch {}".format(i))#, flush=True)
         if (i - start_ind) % 10 == 0 and i != start_ind:

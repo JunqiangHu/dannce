@@ -2,6 +2,7 @@
 import sys
 import numpy as np
 import os
+# import pdb
 from copy import deepcopy
 import scipy.io as sio
 import imageio
@@ -121,7 +122,7 @@ def com_predict(params: Dict):
 
     # Get the model
     model = build_com_network(params)
-
+    # import pdb; pdb.set_trace()
     (
         samples,
         datadict,
@@ -150,7 +151,7 @@ def com_predict(params: Dict):
 
     # Parameters
     predict_params = get_com_predict_params(params)
-    partition = {"valid_sampleIDs": samples}
+    partition = {"valid_sampleIDs": samples} # actual sample in ms level
 
     save_data = {}
 
@@ -488,7 +489,7 @@ def com_train(params: Dict):
             layer.trainable = False
 
     model.compile(
-        optimizer=Adam(lr=float(params["lr"])),
+        optimizer=Adam(learning_rate=float(params["lr"])),
         loss=params["loss"],
     )
 
@@ -1289,7 +1290,7 @@ def dannce_train(params: Dict):
         if params["heatmap_reg"] or params["train_mode"] != "continued":
             # recompiling a full model will reset the optimizer state
             model.compile(
-                optimizer=Adam(lr=float(params["lr"])),
+                optimizer=Adam(learning_rate=float(params["lr"])),
                 loss=params["loss"]
                 if not params["heatmap_reg"]
                 else [params["loss"], losses.heatmap_max_regularizer],
@@ -1376,6 +1377,8 @@ def dannce_train(params: Dict):
         verbose=params["verbose"],
         epochs=params["epochs"],
         callbacks=callbacks,
+        max_queue_size=30,
+        workers=32, # edited by LJJ 20240609
     )
 
     logging.info(prepend_log_msg + "Renaming weights file with best epoch description")
@@ -1516,7 +1519,7 @@ def dannce_predict(params: Dict):
     # Datasets
     valid_inds = np.arange(len(samples))
     partition = {"valid_sampleIDs": samples[valid_inds]}
-
+    # import pdb; pdb.set_trace()
     # TODO: Remove tifdirs arguments, which are deprecated
     tifdirs = []
 
@@ -1598,7 +1601,7 @@ def dannce_predict(params: Dict):
             )
         else:
             path = os.path.join(params["dannce_predict_dir"], "save_data_MAX.mat")
-        # import pdb; pdb.set_trace()
+
         p_n = savedata_tomat(
             path,
             params,

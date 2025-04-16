@@ -281,11 +281,11 @@ def infer_params(params, dannce_net, prediction):
                     viddir = os.path.join(
                         params["viddir"], params["camnames"][i], os.listdir(viddir)[0]
                     )
-                video_files = os.listdir(viddir)
-                camf = os.path.join(viddir, video_files[0])
-                v = imageio.get_reader(camf)
-                im = v.get_data(0)
-                v.close()
+                #video_files = os.listdir(viddir)
+                #camf = os.path.join(viddir, video_files[0])
+                #v = imageio.get_reader(camf)
+                #im = v.get_data(0)
+                #v.close() ### commented by LJJ 20240609
                 im_h.append(im.shape[0])
                 im_w.append(im.shape[1])
 
@@ -308,7 +308,7 @@ def infer_params(params, dannce_net, prediction):
         else:
             print_and_set(params, "maxbatch", "max")
 
-        if params["start_sample"] is not None:
+        if (params["start_sample"] is not None) and (params["start_batch"] is None):
             if isinstance(params["start_sample"], (int, np.integer)):
                 print_and_set(
                     params,
@@ -1386,6 +1386,7 @@ def savedata_expval(
     sID = np.zeros((len(list(data.keys())),))
     p_max = np.zeros((len(list(data.keys())), num_markers))
 
+    # sdict = {} # added by HJQ, 20250415
     for (i, key) in enumerate(data.keys()):
         d_coords[i] = data[key]["pred_coord"]
         if tcoord:
@@ -1401,12 +1402,12 @@ def savedata_expval(
             "sampleID": sID,
             "metadata": prepare_save_metadata(params),
         }
-    if write and data is None:
+    if write and (data is None):
         sio.savemat(
             fname.split(".pickle")[0] + ".mat",
             sdict,
         )
-    elif write and data is not None:
+    elif write and (data is not None):
         sio.savemat(fname, sdict)
 
     return d_coords, t_coords, p_max, sID
