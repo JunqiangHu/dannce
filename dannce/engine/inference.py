@@ -326,7 +326,8 @@ def extract_single_instance(
     No Longer Returned:
         (Dict): Updated saved data dictionary.
     """
-    pred_squeeze = ndimage.median_filter(np.squeeze(pred[n_cam]), size=10)
+    # pred_squeeze = ndimage.median_filter(np.squeeze(pred[n_cam]), size=10)
+    pred_squeeze = np.squeeze(pred[n_cam])
     # modified by HJQ, 20250415
 
     pred_max = np.max(pred_squeeze)
